@@ -4,7 +4,7 @@ name: Build and Deploy Docker Images
 on:
   push:
     branches:
-      - master # Change this to match your branch name
+      - master # Ensure this matches your actual branch name
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16" # or your preferred Node.js version
+          node-version: "18" # Updated to a supported Node.js version
 
       - name: Install CDK and Dependencies
         run: |
@@ -43,4 +43,29 @@ jobs:
             --stack-name IoTStack \
             --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" \
             --output text)
-          echo "ECR_URI=${ECR_URI}" >> $GIT
+          echo "ECR_URI=${ECR_URI}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Docker image
+        run: |
+          echo "Building Docker image from IoT_GPS"
+          docker build -t ${{ env.ECR_URI }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
+          docker push ${{ env.ECR_URI }}/my-iot-gps-app:latest
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy with CDK
+        run: |
+          cd CDK
+          npm install
+          npx cdk deploy --all --require-approval never
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
