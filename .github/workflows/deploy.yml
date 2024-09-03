@@ -79,6 +79,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "us-east-1"
 
+      - name: List Directory Contents
+        run: |
+          echo "Listing directory contents of IoTMockSensors/IoT_GPS"
+          ls -la IoTMockSensors/IoT_GPS
+
       - name: Build and Push Docker image
         run: |
           echo "Building Docker image from IoT_GPS"
