@@ -24,7 +24,7 @@ jobs:
       - name: Build and Push Docker image
         run: |
           echo "Building Docker image from IoT_GPS"
-          docker build -t ${{ secrets.ECR_URI }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
-          docker push ${{ secrets.ECR_URI }}/my-iot-gps-app:latest
+          docker build -t ${{ needs.deploy.outputs.ecr-uri }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
+          docker push ${{ needs.deploy.outputs.ecr-uri }}/my-iot-gps-app:latest
         env:
-          ECR_URI: ${{ secrets.ECR_URI }}
+          ECR_URI: ${{ needs.deploy.outputs.ecr-uri }}
