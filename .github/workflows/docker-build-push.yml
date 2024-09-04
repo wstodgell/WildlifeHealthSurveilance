@@ -13,16 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Assume GitHubActionsAdminRole
+        id: assume-role
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::654654232198:role/GitHubActionsAdminRole
+          aws-region: us-east-1
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Log in to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          region: us-east-1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ needs.deploy.outputs.ecr-uri }}
 
       - name: Build and Push Docker image
         run: |
