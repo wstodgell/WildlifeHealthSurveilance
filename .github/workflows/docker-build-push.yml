@@ -27,11 +27,11 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Print ECR URI
-        run: echo "ECR_URI=${{ needs.deploy.outputs.ecr-uri }}"
+        run: echo "ECR_URI=${{ env.ECR_URI }}"
 
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ needs.deploy.outputs.ecr-uri }}
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
 
