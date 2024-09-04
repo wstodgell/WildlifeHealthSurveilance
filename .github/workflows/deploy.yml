@@ -9,8 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    outputs:
-      ecr-uri: ${{ steps.output-ecr-uri.outputs.ecr-uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,10 +23,14 @@ jobs:
           cd CDK
           npm install
 
+      - name: Clean CDK Context
+        run: |
+          rm -rf node_modules/.cdk
+
       - name: Bootstrap CDK Environment
         run: |
           cd CDK
-          npx cdk bootstrap aws://637423502407/us-east-1
+          npx cdk bootstrap aws://654654232198/us-east-1
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -39,23 +41,6 @@ jobs:
         run: |
           cd CDK
           npx cdk deploy --all --require-approval never
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
-
-      - name: Output ECR URI
-        id: output-ecr-uri
-        run: |
-          set -x  # Enable command tracing
-          # Print current AWS CLI configuration
-          aws configure list
-          # Print AWS CLI version
-          aws --version
-          # Describe stacks and handle potential errors
-          ECR_URI=$(aws cloudformation describe-stacks --stack-name IoTStack --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" --output text || echo "Failed to get ECR URI")
-          echo "ECR_URI=$ECR_URI"
-          echo "::set-output name=ecr-uri::$ECR_URI"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
