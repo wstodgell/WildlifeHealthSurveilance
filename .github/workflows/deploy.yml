@@ -25,7 +25,13 @@ jobs:
 
       - name: Clean CDK Context
         run: |
+          cd CDK
           rm -rf node_modules/.cdk
+
+      - name: Set Environment Variables
+        run: |
+          echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
 
       - name: Bootstrap CDK Environment
         run: |
