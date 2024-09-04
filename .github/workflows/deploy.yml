@@ -68,3 +68,6 @@ jobs:
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      - name: Print ECR URI
+        run: echo "ECR_URI=${{ env.ECR_URI }}"
