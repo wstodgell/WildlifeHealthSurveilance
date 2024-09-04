@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class CdkStack extends cdk.Stack {
   public readonly ecrRepositoryUri: string;
@@ -19,5 +20,22 @@ export class CdkStack extends cdk.Stack {
       description: 'URI of the ECR repository',
       exportName: 'EcrRepositoryUri'
     });
+
+    // Create the IAM role with AdministratorAccess
+    const ecsTaskExecutionRole = new iam.Role(this, 'EcsTaskExecutionRole', {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role for ECS tasks with full administrative permissions',
+    });
+
+    // Attach the AdministratorAccess policy to the role
+    ecsTaskExecutionRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
+
+    // Output the role ARN
+    new cdk.CfnOutput(this, 'EcsTaskExecutionRoleArn', {
+      value: ecsTaskExecutionRole.roleArn,
+      description: 'ARN of the ECS Task Execution Role',
+      exportName: 'EcsTaskExecutionRoleArn'
+    });
+    
   }
 }
