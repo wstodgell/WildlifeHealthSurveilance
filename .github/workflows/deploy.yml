@@ -18,14 +18,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18" # Updated to a supported Node.js version
+          node-version: "18"
 
       - name: Install CDK and Dependencies
         run: |
           cd CDK
           npm install
-          - name: Bootstrap CDK Environment
-      - name: bootstrap AWS
+
+      - name: Bootstrap CDK Environment
         run: |
           cd CDK
           npx cdk bootstrap aws://637423502407/us-east-1
@@ -33,6 +33,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "us-east-1"
+
       - name: Deploy CDK Stack
         id: cdk-deploy
         run: |
@@ -56,7 +57,6 @@ jobs:
         id: get-ecr-uri
         run: |
           echo "Fetching ECR URI from CloudFormation stack output"
-          aws cloudformation describe-stacks --stack-name IoTStack
           ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name IoTStack \
             --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" \
@@ -100,13 +100,3 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Deploy with CDK
-        run: |
-          cd CDK
-          npm install
-          npx cdk deploy --all --require-approval never
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
