@@ -31,14 +31,6 @@ export class CdkStack extends cdk.Stack {
     // Attach the AdministratorAccess policy to the role
     ecsTaskExecutionRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
 
-    const gitHubActionsRole = new iam.Role(this, 'GitHubActionsRole', {
-      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
-      description: 'Role for ECS tasks with full administrative permissions',
-      roleName: 'ecsTaskExecutionRole',  // Explicit role name
-    });
-
-    gitHubActionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
-
     // Output the role ARN
     new cdk.CfnOutput(this, 'EcsTaskExecutionRoleArn', {
       value: ecsTaskExecutionRole.roleArn,
