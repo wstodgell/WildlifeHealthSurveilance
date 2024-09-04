@@ -24,12 +24,10 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Log in to Amazon ECR
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ needs.deploy.outputs.ecr-uri }}
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build and Push Docker image
         run: |
           echo "Building Docker image from IoT_GPS"
-          docker build -t ${{ needs.deploy.outputs.ecr-uri }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
-          docker push ${{ needs.deploy.outputs.ecr-uri }}/my-iot-gps-app:latest
-        env:
-          ECR_URI: ${{ needs.deploy.outputs.ecr-uri }}
+          docker build -t ${{ secrets.ECR_REGISTRY }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
+          docker push ${{ secrets.ECR_REGISTRY }}/my-iot-gps-app:latest
