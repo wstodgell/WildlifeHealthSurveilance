@@ -65,6 +65,6 @@ jobs:
           # Describe stacks and handle potential errors
           ECR_URI=$(aws cloudformation describe-stacks --stack-name IoTStack --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" --output text || echo "Failed to get ECR URI")
           echo "ECR_URI=$ECR_URI"
-          echo "::set-output name=ecr-uri::$ECR_URI"
+          echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
