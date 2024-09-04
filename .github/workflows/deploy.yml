@@ -4,7 +4,7 @@ name: Build and Deploy Docker Images
 on:
   push:
     branches:
-      - master # Ensure this matches your actual branch name
+      - master
   workflow_dispatch:
 
 jobs:
@@ -25,14 +25,11 @@ jobs:
           cd CDK
           npm install
 
-      - name: Bootstrap CDK Environment
+      - name: Debugging
         run: |
-          cd CDK
-          npx cdk bootstrap aws://637423502407/us-east-1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
+          echo "Debugging Step"
+          pwd
+          ls -la
 
       - name: Deploy CDK Stack
         id: cdk-deploy
@@ -43,60 +40,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "us-east-1"
-
-      - name: Check Stack Status
-        run: |
-          echo "Checking CloudFormation stack status..."
-          aws cloudformation describe-stacks --stack-name IoTStack
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
-
-      - name: Get ECR URI
-        id: get-ecr-uri
-        run: |
-          echo "Fetching ECR URI from CloudFormation stack output"
-          ECR_URI=$(aws cloudformation describe-stacks \
-            --stack-name IoTStack \
-            --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" \
-            --output text 2>&1)
-          if [ $? -ne 0 ]; then
-            echo "Error fetching ECR URI: $ECR_URI"
-            exit 1
-          fi
-          if [ -z "$ECR_URI" ]; then
-            echo "Error: ECR URI is empty or not found."
-            exit 1
-          fi
-          echo "ECR_URI=${ECR_URI}" >> $GITHUB_ENV
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: us-east-1
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: "us-east-1"
-
-      - name: List Directory Contents
-        run: |
-          echo "Listing directory contents of IoTMockSensors/IoT_GPS"
-          ls -la IoTMockSensors/IoT_GPS
-
-      - name: Build and Push Docker image
-        run: |
-          echo "Building Docker image from IoT_GPS"
-          docker build -t ${{ env.ECR_URI }}/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
-          docker push ${{ env.ECR_URI }}/my-iot-gps-app:latest
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
