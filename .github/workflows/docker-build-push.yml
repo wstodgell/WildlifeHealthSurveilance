@@ -32,6 +32,7 @@ jobs:
       - name: Print ECR URI
         run: |
           echo "trying to print out ECR_URI"
+          echo "test $TEST"
           echo "ECR_URI=${{ env.ECR_URI }}"
           echo "ECR_URI=${{ needs.deploy.outputs.ecr-uri }}"
 
@@ -44,5 +45,5 @@ jobs:
       - name: Build and Push Docker image
         run: |
           echo "Building Docker image from IoT_GPS"
-          docker build -t $TEST/my-iot-gps-app:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
-          docker push $TEST/my-iot-gps-app:latest
+          docker build -t $TEST:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
+          docker push $TEST:latest
