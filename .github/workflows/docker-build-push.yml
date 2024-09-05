@@ -6,6 +6,13 @@ on:
     types:
       - completed
 
+  workflow_dispatch:
+    inputs:
+      example-input:
+        description: "An example input"
+        required: false
+        default: "default value"
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
