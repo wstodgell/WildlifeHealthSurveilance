@@ -1,4 +1,4 @@
-name: Setup and Deploy Stack
+name: Deploy
 
 on:
   push:

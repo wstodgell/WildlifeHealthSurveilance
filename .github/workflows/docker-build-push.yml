@@ -14,7 +14,7 @@ on:
         default: "default value"
 
 jobs:
-  build-and-push:
+  deploy-build:
     runs-on: ubuntu-latest
     permissions:
       id-token: write

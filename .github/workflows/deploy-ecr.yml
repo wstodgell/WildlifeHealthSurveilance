@@ -2,12 +2,12 @@ name: Setup and Deploy ECR
 
 on:
   workflow_run:
-    workflows: ["Setup and Deploy Stack"]
+    workflows: ["Deploy"]
     types:
       - completed
 
 jobs:
-  build-and-push:
+  deply-ecr:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
