@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
 
 export class CdkStack extends cdk.Stack {
   public readonly ecrRepositoryUri: string;
@@ -40,5 +41,21 @@ export class CdkStack extends cdk.Stack {
       exportName: 'EcsTaskExecutionRoleArn'
     });
     
+     // Create an ECS Cluster
+     const cluster = new ecs.Cluster(this, 'IoTCluster', {
+      clusterName: 'IoTCluster',
+      // The default Fargate configurations are already set up,
+      // so there's no need to specify additional settings for Fargate
+    });
+
+    // Output the cluster name
+    new cdk.CfnOutput(this, 'EcsClusterName', {
+      value: cluster.clusterName,
+      description: 'Name of the ECS cluster',
+      exportName: 'EcsClusterName'
+    });
+
+
+
   }
 }

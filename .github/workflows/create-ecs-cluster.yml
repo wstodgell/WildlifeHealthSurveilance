@@ -1,0 +1,26 @@
+name: Create ECS Cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      example-input:
+        description: "An example input"
+        required: false
+        default: "default value"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: META_START_DATA
+        run: |
+          echo ACTION: $HITHUB_ACTION
+          echo GITHuB_ACTION_REPOSITORY $GITHUB_ACTION_REPOSITORY
+          echo GITHuB_ACTION_REPOSITORY $GITHUB_ACTION_REPOSITORY
+
+      - name: Checkout code
+        uses: actions/checkout@v3
