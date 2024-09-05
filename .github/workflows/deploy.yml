@@ -41,4 +41,4 @@ jobs:
       - name: Bootstrap CDK Environment
         run: |
           cd CDK
-          npx cdk bootstrap aws://${{ env.AWS_ACCOUNT_ID }}/${{ env.AWS_REGION }}
+          npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
