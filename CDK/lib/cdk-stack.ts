@@ -55,6 +55,47 @@ export class CdkStack extends cdk.Stack {
       exportName: 'EcsClusterName'
     });
 
+    // Create a Fargate Task Definition for IoT-GPS
+    const taskDefinition = new ecs.FargateTaskDefinition(this, 'IoTGPSTaskDefinition', {
+      family: 'IoT-GPS',
+      cpu: 256, // Adjust CPU if needed
+      memoryLimitMiB: 512, // Adjust memory if needed
+      executionRole: ecsTaskExecutionRole,
+    });
+
+    // Add container to the Task Definition
+    const container = taskDefinition.addContainer('GPSContainer', {
+      image: ecs.ContainerImage.fromRegistry('GPSContainer'), // You can replace this with your ECR image URI
+      memoryLimitMiB: 512, // Adjust memory if needed
+      cpu: 256, // Adjust CPU if needed
+    });
+
+    // Set networking mode for task (awsvpc)
+    container.addPortMappings({
+      containerPort: 80, // Adjust if your container exposes a different port
+    });
+
+    // Add Fargate Service to the IoTCluster
+    const fargateService = new ecs.FargateService(this, 'IoTGPSService', {
+      cluster,
+      taskDefinition,
+      assignPublicIp: true, // Ensure tasks are reachable via public IP if needed
+      desiredCount: 1, // Adjust based on how many instances you want running
+    });
+
+    // Output for the Task Definition and Service
+    new cdk.CfnOutput(this, 'TaskDefinitionFamily', {
+      value: taskDefinition.family,
+      description: 'Family of the ECS Task Definition',
+      exportName: 'TaskDefinitionFamily'
+    });
+
+    new cdk.CfnOutput(this, 'FargateServiceName', {
+      value: fargateService.serviceName,
+      description: 'Name of the ECS Fargate Service',
+      exportName: 'FargateServiceName'
+    });
+
 
 
   }
