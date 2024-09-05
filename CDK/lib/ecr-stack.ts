@@ -43,11 +43,5 @@ export class EcrStack extends cdk.Stack {
     // Attach the AdministratorAccess policy to the role
     ecsTaskExecutionRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
 
-    // Output the role ARN
-    new cdk.CfnOutput(this, 'EcsTaskExecutionRoleArn', {
-      value: ecsTaskExecutionRole.roleArn,
-      description: 'ARN of the ECS Task Execution Role',
-      exportName: 'EcsTaskExecutionRoleArn'
-    });
   }
 }
