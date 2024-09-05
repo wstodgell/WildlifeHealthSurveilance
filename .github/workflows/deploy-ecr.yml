@@ -1,0 +1,20 @@
+name: Setup and Deploy ECR
+
+on:
+  workflow_run:
+    workflows: ["Setup and Deploy Stack"]
+    types:
+      - completed
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: this
+        id: deploy
+        run: |
+          cd CDK
+          npx cdk deploy --all --require-approval never

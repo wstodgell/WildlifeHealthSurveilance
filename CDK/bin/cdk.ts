@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { CdkStack } from '../lib/cdk-stack';
+import { EcrStack } from '../lib/ecr-stack';
+import { EcsStack } from '../lib/ecs-stack';
 
 const app = new cdk.App();
-new CdkStack(app, 'IoTStack', {
+new EcrStack(app, 'IoTStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
@@ -19,3 +20,5 @@ new CdkStack(app, 'IoTStack', {
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
+
+
