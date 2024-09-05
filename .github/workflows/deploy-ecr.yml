@@ -12,9 +12,15 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
     steps:
-      - name: this
-        id: deploy
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup CDK
+        uses: ./.github/actions/setup-cdk
+
+      - name: Deploy CDK Stack
         run: |
           cd CDK
           npx cdk deploy --all --require-approval never

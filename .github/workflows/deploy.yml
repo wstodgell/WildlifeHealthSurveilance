@@ -17,15 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-
-      - name: Install CDK and Dependencies
-        run: |
-          cd CDK
-          npm install
+      - name: Setup CDK
+        uses: ./.github/actions/setup-cdk
 
       - name: Clean CDK Context
         run: |
