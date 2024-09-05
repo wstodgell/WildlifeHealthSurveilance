@@ -10,7 +10,8 @@ export class CdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const repository = new ecr.Repository(this, 'MyIotGpsAppRepository', {
-      repositoryName: 'my-iot-gps-app'
+      repositoryName: 'my-iot-gps-app',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     this.ecrRepositoryUri = repository.repositoryUri;
