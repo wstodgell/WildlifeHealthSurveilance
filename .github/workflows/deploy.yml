@@ -44,6 +44,12 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionsAdminRole
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # Step to Bootstrap the CDK environment
+      - name: Bootstrap CDK Environment
+        run: |
+          cd CDK
+          npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
+
       # Deploy the ECR stack first to create the ECR repository
       - name: Deploy ECR Stack
         run: |
