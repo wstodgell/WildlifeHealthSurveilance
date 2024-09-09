@@ -67,8 +67,5 @@ export class EcsStack extends cdk.Stack {
       description: 'Name of the ECS Fargate Service',
       exportName: 'FargateServiceName'
     });
-
-
-
   }
 }

@@ -1,6 +1,8 @@
 import random
 import math
 
+#Summary: Initializes 8 elk in random positions within specific 'circle'.
+#   update_elk_positions will move the elk in a random faions (longitude wise) but to the east (latitude wise)
 
 # Constants
 NUM_ELKS = 8  # Number of elk

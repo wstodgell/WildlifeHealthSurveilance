@@ -54,7 +54,7 @@ jobs:
       - name: Deploy ECR Stack
         run: |
           cd CDK
-          npx cdk deploy IoTStack --require-approval never
+          npx cdk deploy EcrStack --require-approval never
 
       # Output ECR URI to use for Docker image pushing
       - name: Output ECR URI
@@ -87,3 +87,9 @@ jobs:
         run: |
           cd CDK
           npx cdk deploy EcsStack --require-approval never  # Specify the ECS stack explicitly
+          # Deploy the ECS stack, which will use the Docker image in the ECR repository
+
+      - name: Deploy IoT Stack
+        run: |
+          cd CDK
+          npx cdk deploy IotCodeStack --require-approval never  # Specify the ECS stack explicitly
