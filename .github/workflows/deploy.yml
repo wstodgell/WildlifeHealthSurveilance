@@ -86,4 +86,4 @@ jobs:
       - name: Deploy ECS Stack
         run: |
           cd CDK
-          npx cdk deploy --require-approval never
+          npx cdk deploy EcsStack --require-approval never  # Specify the ECS stack explicitly
