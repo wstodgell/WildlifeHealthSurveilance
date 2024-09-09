@@ -60,7 +60,7 @@ jobs:
       - name: Output ECR URI
         id: output-ecr-uri
         run: |
-          ECR_URI=$(aws cloudformation describe-stacks --stack-name IoTStack --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" --output text)
+          ECR_URI=$(aws cloudformation describe-stacks --stack-name EcrStack --query "Stacks[0].Outputs[?OutputKey=='EcrRepositoryUri'].OutputValue" --output text)
           echo "ECR_URI=$ECR_URI"
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
         env:
