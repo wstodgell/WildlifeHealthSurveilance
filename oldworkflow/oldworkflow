@@ -140,4 +140,4 @@ jobs:
           docker build -t ${{ env.ECR_URI }}:latest -f IoTMockSensors/IoT_GPS/Dockerfile IoTMockSensors/IoT_GPS
           docker push ${{ env.ECR_URI }}:latest
 
-"
+"from
