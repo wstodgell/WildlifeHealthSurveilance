@@ -2,6 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+
 
 export class EcsStack extends cdk.Stack {
   public readonly ecrRepositoryUri: string;
@@ -12,6 +14,12 @@ export class EcsStack extends cdk.Stack {
     const ecrRepositoryUri = cdk.Fn.importValue('EcrRepositoryUri');
     const ecsTaskExecutionRoleArn = cdk.Fn.importValue('EcsTaskExecutionRoleArn');
     const ecsTaskExecutionRole = iam.Role.fromRoleArn(this, 'ImportedEcsTaskExecutionRole', ecsTaskExecutionRoleArn);
+
+    const logGroup = new logs.LogGroup(this, 'EcsLogGroup', {
+      logGroupName: '/ecs/IoT-GPS',
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // Ensure logs are cleaned up with stack removal
+      retention: logs.RetentionDays.ONE_WEEK,   // Adjust retention period as needed
+    });
 
      // Create an ECS Cluster
      const cluster = new ecs.Cluster(this, 'IoTCluster', {
@@ -40,6 +48,10 @@ export class EcsStack extends cdk.Stack {
       image: ecs.ContainerImage.fromRegistry(ecrRepositoryUri),  // Use imported ECR URI
       memoryLimitMiB: 512, // Adjust memory if needed
       cpu: 256, // Adjust CPU if needed
+      logging: new ecs.AwsLogDriver({
+        streamPrefix: 'IoT-GPS',
+        logGroup: logGroup
+      }),
     });
 
     // Set networking mode for task (awsvpc)
