@@ -4,6 +4,10 @@ import time
 import json
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from gps_collar_logic import update_elk_positions
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
 
 # AWS IoT Core details
 MQTT_HOST = "your-iot-endpoint.amazonaws.com"  # Replace with your AWS IoT Core endpoint
@@ -44,7 +48,11 @@ mqtt_client.configureConnectDisconnectTimeout(10)  # 10 seconds
 mqtt_client.configureMQTTOperationTimeout(5)  # 5 seconds
 
 # Connect to AWS IoT Core
-mqtt_client.connect()
+try:
+    mqtt_client.connect()
+    logging.info('Successfully connected to AWS IoT Core at {}'.format(MQTT_HOST))
+except Exception as e:
+    logging.error(f'Failed to connect to IoT Core: {e}')
 
 # Simulate elk GPS collar data and publish it to IoT Core
 for _ in range(100):  # Run for 100 updates, adjust as needed
@@ -65,7 +73,11 @@ for _ in range(100):  # Run for 100 updates, adjust as needed
         payload_json = json.dumps(payload)
 
         # Publish the payload to the MQTT topic
-        mqtt_client.publish(TOPIC, payload_json, 1)
+        try:
+            mqtt_client.publish(TOPIC, payload_json, 1)
+            logging.info(f'Successfully published GPS data for elk {elk_id}: {payload_json}')
+        except Exception as e:
+            logging.error(f'Failed to publish data for elk {elk_id}: {e}')
 
         print(f"Published GPS data for elk {elk_id}: {payload_json}")
 

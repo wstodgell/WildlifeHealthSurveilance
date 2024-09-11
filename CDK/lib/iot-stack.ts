@@ -68,6 +68,18 @@ export class IotCodeStack extends cdk.Stack {
     });
 
     // Outputs to find the certificate and Thing details
+
+    new cdk.CfnOutput(this, 'IoTPolicyOutput', {
+      value: iotPolicy.policyName!,
+      description: 'Name of the IoT Device Policy',
+    });
+
+    new cdk.CfnOutput(this, 'IoTCertificateArnOutput', {
+      value: certResource.getResponseField('certificateArn'),
+      description: 'The ARN of the IoT Device Certificate',
+    });
+
+
     new cdk.CfnOutput(this, 'IoTThingName', {
       value: iotThing.thingName!,
       description: 'The name of the IoT Thing',
