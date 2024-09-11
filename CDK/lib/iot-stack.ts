@@ -79,7 +79,7 @@ export class IotCodeStack extends cdk.Stack {
       publicReadAccess: false,   // Ensures bucket is private
     });
 
-    // Lambda function to create IoT certificates and upload them to S3
+    // ****************************************Lambda function to create IoT certificates and upload them to S3d
     const createCertificatesFunction = new lambda.Function(this, 'CreateCertificatesFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'index.handler',
@@ -91,7 +91,7 @@ export class IotCodeStack extends cdk.Stack {
 
     iotGpsBucket.grantPut(createCertificatesFunction); // Grant Lambda permission to upload to S3
 
-    // Custom resource to trigger Lambda during CDK deployment
+    // Custom resource to trigger **** Lambda during CDK deployment
     new cr.AwsCustomResource(this, 'CreateCertificatesCustomResource', {
       onCreate: {
         service: 'Lambda',
@@ -102,6 +102,7 @@ export class IotCodeStack extends cdk.Stack {
         physicalResourceId: cr.PhysicalResourceId.of('CreateCertificatesCustomResource'),
       },
     });
+    // ************************ END OF LAMBDA FUNCTION *****************************
 
       // Add a bucket policy to allow IoT and ECS to put objects in the bucket
     iotGpsBucket.addToResourcePolicy(new iam.PolicyStatement({
