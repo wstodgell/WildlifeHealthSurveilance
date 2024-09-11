@@ -1,8 +1,11 @@
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as iot from 'aws-cdk-lib/aws-iot';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as path from 'path';
 
 export class IotCodeStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -66,6 +69,88 @@ export class IotCodeStack extends cdk.Stack {
       principal: certArn,
       policyName: iotPolicy.policyName!,
     });
+
+// ************************ Create an S3 bucket to store IoT messages
+    const iotGpsBucket = new s3.Bucket(this, 'IoTGPSMessagesBucket', {
+      bucketName: 'iot-gps-mqtt-messages-bucket',
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // Deletes bucket on stack deletion (adjust as needed)
+      autoDeleteObjects: true,  // Automatically deletes objects on bucket deletion
+      versioned: true,          // Enable versioning for objects in the bucket
+      publicReadAccess: false,   // Ensures bucket is private
+    });
+
+    // Lambda function to create IoT certificates and upload them to S3
+    const createCertificatesFunction = new lambda.Function(this, 'CreateCertificatesFunction', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, 'lambda/create-certificates')),
+      environment: {
+        BUCKET_NAME: iotGpsBucket.bucketName,
+      },
+    });
+
+    iotGpsBucket.grantPut(createCertificatesFunction); // Grant Lambda permission to upload to S3
+
+    // Custom resource to trigger Lambda during CDK deployment
+    new cr.AwsCustomResource(this, 'CreateCertificatesCustomResource', {
+      onCreate: {
+        service: 'Lambda',
+        action: 'invoke',
+        parameters: {
+          FunctionName: createCertificatesFunction.functionName,
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('CreateCertificatesCustomResource'),
+      },
+    });
+
+      // Add a bucket policy to allow IoT and ECS to put objects in the bucket
+    iotGpsBucket.addToResourcePolicy(new iam.PolicyStatement({
+      actions: ['s3:PutObject', 's3:PutObjectAcl', 's3:GetObject'],
+      resources: [`${iotGpsBucket.bucketArn}/*`],
+      principals: [
+        new iam.ServicePrincipal('iot.amazonaws.com'),   // Allows IoT to write messages
+        new iam.ServicePrincipal('ecs-tasks.amazonaws.com')  // Allows ECS tasks to write objects
+      ],
+    }));
+
+    const s3WritePolicy = new iam.PolicyStatement({
+      actions: ['s3:PutObject'],
+      resources: [`${iotGpsBucket.bucketArn}/*`],
+    });
+  
+    const iotRole = new iam.Role(this, 'IoTToS3Role', {
+        assumedBy: new iam.ServicePrincipal('iot.amazonaws.com'),
+        inlinePolicies: {
+            S3WriteAccess: new iam.PolicyDocument({
+                statements: [s3WritePolicy],
+            }),
+        },
+    });
+
+    const iotRule = new iot.CfnTopicRule(this, 'IoTGpsToS3Rule', {
+      ruleName: 'IoTGpsToS3Rule',
+      topicRulePayload: {
+          actions: [
+              {
+                  s3: {
+                      bucketName: iotGpsBucket.bucketName,
+                      key: 'gps_data/${timestamp()}.json',  // Object key format with timestamp
+                      roleArn: iotRole.roleArn,  // Use the role created above
+                  },
+              },
+          ],
+          sql: "SELECT * FROM 'gps/elk'",  // SQL query to select messages from the MQTT topic
+          ruleDisabled: false,
+        },
+    });
+  
+
+    new cdk.CfnOutput(this, 'S3GPSBucketName', {
+      value: iotGpsBucket.bucketName,
+      description: 'Name of the S3 Bucket for IoT GPS messages',
+    });
+
+
 
     // Outputs to find the certificate and Thing details
 

@@ -10,12 +10,12 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # AWS IoT Core details
-MQTT_HOST = "your-iot-endpoint.amazonaws.com"  # Replace with your AWS IoT Core endpoint
+MQTT_HOST = "a3f4hutyg6alsr-ats.iot.us-east-1.amazonaws.com"  # Replace with your AWS IoT Core endpoint - Iot Core -> Settings -> endpoint
 CLIENT_ID = "GPSCollarPublisher"
 TOPIC = "gps/elk"  # The MQTT topic where data will be sent
 
 # S3 bucket details (if storing certs in S3)
-S3_BUCKET = "your-s3-bucket-name"
+S3_BUCKET = "iot-gps-mqtt-messages-bucket"
 S3_CERT_PATH = "certs/"
 
 # Download certs from S3 to a temporary directory (only if using S3 to store certs)
